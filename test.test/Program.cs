@@ -22,15 +22,88 @@ namespace test.test
         {
             //MyElastikSearch<ILCILACLAR> myElastikSearch = new MyElastikSearch<ILCILACLAR>();
 
+            var connectionSettings = new ConnectionSettings(new Uri("http://127.0.0.1:9200/"))
+            .DefaultMappingFor<ILCILACLAR>(i => i
+                .IndexName("ind_ilcilaclar")
+                .IdProperty(p => p.ID)
+            )
+            .EnableDebugMode()
+            .PrettyJson()
+            .RequestTimeout(TimeSpan.FromMinutes(2));
+
+            var client = new ElasticClient(connectionSettings);
+            //var client = new ElasticClient(settings);
+            var response = client.Search<ILCILACLAR>(s => s
+                .Query(q => q
+                    .Match(m => m
+                        .Field(f => f.ADI)
+                        .Query("ALLI ECZANE STANDI")
+                    )
+                )
+            );
+
+            var projetcs = response.Documents;
+            String adi = projetcs.First<ILCILACLAR>().ADI.ToString();
+
+
+
+            var response2 = client.Search<ILCILACLAR>(s => s
+            .Query(q=>q
+                .QueryString(qs=>qs
+                    .Query("Melik~")
+                    .DefaultField("aDI")
+                 )
+             ));
+            var projects2 = response2.Documents;
+
+            var response3 = client.Search<ILCILACLAR>(s=>s
+                .Query(q=>q
+                    .QueryString(qs => qs
+                        .Query("Melik~")
+                        .Fields(f => f
+                            .Field(p=>p.ADI)
+                            .Field(p=>p.BARKODU)
+                         )
+                    )
+                )
+            );
+
+
+            var protects3 = response3.Documents;
+
+            
+            
+
+            String properties = new MyElastikSearch<ILCILACLAR>("ilcilaclar", "ilcilaclar_alias", "http://127.0.0.1:9200/").GetProperty<ILCILACLAR>(u=>u.ADI);
+            //     var createIndexDescriptor = new CreateIndexDescriptor("ilcilaclar")
+            //.Mappings(ms => ms
+            //                .Map<ILCILACLAR>(m => m.AutoMap())
+            //         )
+            // .Aliases(a => a.Alias("ilcilaclar_alias"));
+            //     var node = new Uri("http://127.0.0.1:9200/");
+            //     var settings = new ConnectionSettings(node);
+
+            //     //var client = new ElasticClient(settings);
+            //     var response = client.Search<ILCILACLAR>(p => p
+            //       .From(0)
+            //       .Size(10)
+            //       .Query(q =>
+            //       q.Term(f => f.ID, 2)
+            //       || q.MatchPhrasePrefix(mq => mq.Field(f => f.ADI).Query("Melik~"))
+            //     )
+            //     );
+
+            //     var projects = response.Documents;
+
             #region Delete index From MyElastikSeach.cs
-            MyElastikSearch<ILCILACLAR> ilcalarIndDel = new MyElastikSearch<ILCILACLAR>("ilcilaclar", "ilcilaclar_alias");
+            MyElastikSearch<ILCILACLAR> ilcalarIndDel = new MyElastikSearch<ILCILACLAR>("ilcilaclar", "ilcilaclar_alias", "http://127.0.0.1:9200/");
             ilcalarIndDel.DeleteIndexAsync();
 
             #endregion
 
 
             #region CreateApiKeyDescriptor INDEX FROM MyElastikSearch.cs
-            MyElastikSearch<ILCILACLAR> ilcalarInd = new MyElastikSearch<ILCILACLAR>("ind_ilcilaclar", "nervus");
+            MyElastikSearch<ILCILACLAR> ilcalarInd = new MyElastikSearch<ILCILACLAR>("ind_ilcilaclar", "nervus", "http://127.0.0.1:9200/");
             ilcalarInd.CreateNewIndex();
             Console.WriteLine("ind_ilcilaclar index created");
             Console.ReadLine();
@@ -62,7 +135,7 @@ namespace test.test
 
             #region index with bulk data
 
-            MyElastikSearch<ILCILACLAR> myElastikSearch = new MyElastikSearch<ILCILACLAR>("ind_ilcilaclar", "nervus");
+            MyElastikSearch<ILCILACLAR> myElastikSearch = new MyElastikSearch<ILCILACLAR>("ind_ilcilaclar", "nervus", "http://127.0.0.1:9200/");
             myElastikSearch.PostData(ilaclar);
 
             #endregion
@@ -129,7 +202,7 @@ namespace test.test
         }
 
         [Obsolete]
-        public static async Task DeleteIndexAsync(string indexName,string aliasName)
+        public static async Task DeleteIndexAsync(string indexName, string aliasName)
         {
             var createIndexDescriptor = new CreateIndexDescriptor(indexName.ToLower()).Mappings(ms => ms.Map<ILCILACLAR>(m => m.AutoMap())).Aliases(b => b.Alias(aliasName.ToLower()));
             var node = new Uri("http://localhost:9200/");

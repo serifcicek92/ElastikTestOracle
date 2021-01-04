@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Connection.cs" />
     <Compile Include="Dto_MusEczacilar.cs" />
+    <Compile Include="GetProperty.cs" />
     <Compile Include="IBaseDto.cs" />
     <Compile Include="ILCILACLAR.cs" />
     <Compile Include="MyElastikSearch.cs" />

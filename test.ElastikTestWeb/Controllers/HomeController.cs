@@ -70,6 +70,17 @@ namespace test.ElastikTestWeb.Controllers
             return View();
         }
 
+        [HttpPost]
+        public JsonResult Search(string kelime)
+        {
+            List<ILCILACLAR> ilaclar = new List<ILCILACLAR>();
+            MyElastikSearch<ILCILACLAR> myElastikSearch = new MyElastikSearch<ILCILACLAR>("ind_ilcilaclar", "ilcilaclar_alias", "http://127.0.0.1:9200/");
+
+            ilaclar = myElastikSearch.Search(kelime+"~").ToList();
+
+            return Json(ilaclar, JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult About()
         {
             ViewBag.Message = "Your application description page.";

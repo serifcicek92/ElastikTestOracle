@@ -9,23 +9,55 @@
 </div>
 
 <div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
+    <div class="col-md-8">
+        <h2>İlaç Adı Giriniz</h2>
+        <div class="col-md-5">
+        <p><input type="text" name="ara" id="ara" /></p>
+        </div>
+        <div class="clearfix"></div>
+        <div class="col-md-5" id="gelenler">
+
+        </div>
     </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-    </div>
+
 </div>
+<style>
+    #gelenler p {
+        margin: 0px;
+        padding: 3px;
+        background-color: whitesmoke;
+        border-bottom: 1px solid #e0dede;
+        cursor:pointer;
+    }
+        #gelenler p:hover {
+            background: #dcdcdc;
+        }
+</style>
+<script src="/Scripts/jquery-3.4.1.js"></script>
+
+<script src="/Scripts/bootstrap.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#ara").keyup(function () {
+
+            var ara = $("#ara").val();
+            console.log(ara);
+            $.ajax({
+                url: '/Home/Search/',
+                type: 'POST',
+                dataType: 'json',
+                data: { 'kelime': ara },
+                success: function (data) {
+                    $("#gelenler").html("")
+                    console.log(data);
+                    $.each(data, function (i, item) {
+                        $("#gelenler").append("<p>" + (item.ADI) + "</p>");
+                    });
+
+                }
+            });
+        });
+
+    });
+</script>
